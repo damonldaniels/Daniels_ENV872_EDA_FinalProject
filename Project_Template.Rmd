@@ -14,6 +14,7 @@ getwd()
 
 # Load your packages
 
+library(dplyr)
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
@@ -1449,21 +1450,65 @@ write.csv(df, row.names = FALSE,
 
 ```
 
+``` {r Data Wrangling, include=FALSE}
+
+# Goal: wrangle data containing information about (1) income levels and (2) self-reported levels of financial literacy
+
+# Relevant Columns:
+  # Column  1     (PUF ID - Public Use File ID)
+  # Column  2     (sample)
+  # Column  3     (fpl - Federal Poverty Status)
+  # Columns 4-6   (SWB - Subjective Well-Being Scores, 3 separate questions)
+  # Column  7     (FWBscore - Financial Well-Being Scale Score, Total)
+  # Columns 8-17  (FWBscore - Financial Well-Being Scale Scores; 9 separate questions)
+  # Column  18    (FSscore - Financial Skill Scale Scores)
+  # Columns 19-25 (FS1 - Financial Skill Scale Scores; 7 separate questions)
+  # Columns 26-28 (FS2 - Financial Skill Scale Scores; 3 separate questions)
+  # Column  51    (LMscore - Lusardi & Mitchell Financial Knowledge Scale Score) 
+  # Column  58    (KHscore - Knoll & Houts Financial Knowledge Scale Score) 
+  # Columns 59-67 (KHscore - Knoll & Houts Financial Knowledge Scale Score; 9 separate questions)
+  # Columns 68-76 (KHscore - Knoll & Houts Financial Knowledge Scale Score, Correct vs Incorrect; 9 separate questions [Correct = "Yes" or Incorrect = "No" answers pertaining to columns 59-67])
+
+# Create New Dataframe
+
+df2 <- 
+
+
+
+```
 
 # Rationale and Research Questions
 
+# The quintessential objective of the Consumer Financial Protection Bureau (CFPB) is to enhance financial well-being among Americans. Financial literacy education plays a critical role in this effort. Unfortunately, in attempting to evaluate the effectiveness of such efforts, it became clear that the consumer finance and consumer capability fields lacked any accepted standard definition or measure of financial well-being initiatives (CFPB 2017). CFPB decided to engage in year-long research to develop an evidence-based and consumer-driven definition of financial well-being, create a validated scale from this data -- the CFPB Financial Well-Being Scale -- and then conduct a national survey using the scale, the CFPB National Financial Well-Being Survey.
+
+# Conducted in English and Spanish between October 27, 2016 and December 5, 2016, 6,394 surveys were completed in total: 5,395 from the general population sample and 999 from an oversample of adults aged 62 and older. These samples are representative of the U.S. adult population plus the District of Columbia. This survey was fielded using the GfK Knowledge Panel, which recruited individuals using address-based sampling and dual-frame landline and cell phone random digit dialing methods.
+
+# The Research Question is as follows:
+
+# What associations can be drawn between an individual’s or household’s federal poverty level (FPL) and self-reported measures of financial literacy?
 
 
 \newpage
 
 # Dataset Information
 
+# This data consists of 
 
 
 \newpage
 
 # Exploratory Analysis 
 
+``` {r}
+
+class(df)
+colnames(df)
+str(df)
+dim(df)
+length(df)
+summary(df)
+
+```
 
 
 \newpage
