@@ -1465,15 +1465,19 @@ write.csv(df, row.names = FALSE,
   # Columns 19-25 (FS1 - Financial Skill Scale Scores; 7 separate questions)
   # Columns 26-28 (FS2 - Financial Skill Scale Scores; 3 separate questions)
   # Column  51    (LMscore - Lusardi & Mitchell Financial Knowledge Scale Score) 
+  # Columns 52-54 (LMscore - Lusardi & Mitchell Financial Knowledge Scale Score; 3 separate questions)
+   # Columns 55-57 (LMscore - Lusardi & Mitchell Financial Knowledge Scale Score, Correct vs Incorrect; 3 separate questions [Correct = "Yes" or Incorrect = "No" answers pertaining to columns 59-67])
   # Column  58    (KHscore - Knoll & Houts Financial Knowledge Scale Score) 
   # Columns 59-67 (KHscore - Knoll & Houts Financial Knowledge Scale Score; 9 separate questions)
   # Columns 68-76 (KHscore - Knoll & Houts Financial Knowledge Scale Score, Correct vs Incorrect; 9 separate questions [Correct = "Yes" or Incorrect = "No" answers pertaining to columns 59-67])
 
 # Create New Dataframe
 
-df2 <- 
+df2 <- select(df, PUF_ID:FS2_3, LMscore:KH9correct)
+dim(df2)
 
-
+write.csv(df2, row.names = FALSE,
+          file = "./Data/Processed_Data/NFWBS_PUF_2016_data_select_PROCESSED.csv")
 
 ```
 
