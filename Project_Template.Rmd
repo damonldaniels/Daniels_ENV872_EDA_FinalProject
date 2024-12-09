@@ -17,6 +17,7 @@ getwd()
 library(dplyr)
 library(tidyverse)
 library(lubridate)
+library(ggridges)
 library(ggplot2)
 library(ggthemes)
 library(cowplot)
@@ -1452,9 +1453,9 @@ write.csv(df, row.names = FALSE,
 
 ``` {r Data Wrangling, include=FALSE}
 
-# Goal: wrangle data containing information about (1) income levels and (2) self-reported levels of financial literacy
+# Goal: wrangle data containing information about (1) income levels, (2) self-reported levels of financial literacy, (3) self-reported levels of financial knowledge, and (4) Two separate scales that gauge correctness of self-reported levels of financial knowledge
 
-# Relevant Columns:
+# Relevant Columns for Wrangling:
   # Column  1     (PUF ID - Public Use File ID)
   # Column  2     (sample)
   # Column  3     (fpl - Federal Poverty Status)
@@ -1476,6 +1477,22 @@ write.csv(df, row.names = FALSE,
 df2 <- select(df, PUF_ID:FS2_3, LMscore:KH9correct)
 dim(df2)
 
+# (1) Remove extra text from all cells that also contain number values:
+# (2) Replace all cells containing [a] "Response not written to database," and [b] "Refused" with "0"
+
+
+df3 <- df2 
+df3 <- df3 %>%
+  mutate_all(as.character)
+df3[df3 == "7 Strongly agree"] <- 7
+df3[df3 == "1 Strongly disagree"] <- 1
+df3[df3 == "Response not written to database"] <- 0
+df3[df3 == "Refused"] <- 0
+df3 <- df3 %>% mutate_if(is.character,as.factor)
+
+
+# Save processed data 
+
 write.csv(df2, row.names = FALSE,
           file = "./Data/Processed_Data/NFWBS_PUF_2016_data_select_PROCESSED.csv")
 
@@ -1485,37 +1502,58 @@ write.csv(df2, row.names = FALSE,
 
 # The quintessential objective of the Consumer Financial Protection Bureau (CFPB) is to enhance financial well-being among Americans. Financial literacy education plays a critical role in this effort. Unfortunately, in attempting to evaluate the effectiveness of such efforts, it became clear that the consumer finance and consumer capability fields lacked any accepted standard definition or measure of financial well-being initiatives (CFPB 2017). CFPB decided to engage in year-long research to develop an evidence-based and consumer-driven definition of financial well-being, create a validated scale from this data -- the CFPB Financial Well-Being Scale -- and then conduct a national survey using the scale, the CFPB National Financial Well-Being Survey.
 
-# Conducted in English and Spanish between October 27, 2016 and December 5, 2016, 6,394 surveys were completed in total: 5,395 from the general population sample and 999 from an oversample of adults aged 62 and older. These samples are representative of the U.S. adult population plus the District of Columbia. This survey was fielded using the GfK Knowledge Panel, which recruited individuals using address-based sampling and dual-frame landline and cell phone random digit dialing methods.
-
 # The Research Question is as follows:
 
-# What associations can be drawn between an individual’s or household’s federal poverty level (FPL) and self-reported measures of financial literacy?
+# What associations can be drawn between an (1) an individual’s or household’s federal poverty level (FPL) and (2) measures of financial knowledge that are (A) self-reported versus (B) accurate or inaccurate according to 2 separate financial literacy scales?
 
 
 \newpage
 
 # Dataset Information
 
-# This data consists of 
+# Conducted in English and Spanish between October 27, 2016 and December 5, 2016, 6,394 surveys were completed in total: 5,395 from the general population sample and 999 from an oversample of adults aged 62 and older. These samples are representative of the U.S. adult population plus the District of Columbia. This survey was fielded using the GfK Knowledge Panel, which recruited individuals using address-based sampling and dual-frame landline and cell phone random digit dialing methods.
+
+# A total of 217 variables were among the complete original dataset. For this specfic project, these have been reduced to 54 total variables that represent the most pertinent partcipant responses that will provide answers to the research question.
 
 
 \newpage
 
 # Exploratory Analysis 
 
-``` {r}
+# View dimensions, column names, and variable type for each column:
 
-class(df)
-colnames(df)
-str(df)
-dim(df)
-length(df)
-summary(df)
+``` {r summary data for dataset}
+
+class(df2)
+colnames(df2)
+str(df2)
+dim(df2)
+length(df2)
+summary(df2)
 
 ```
 
 
 \newpage
+
+# Summary Data by Federal Poverty Level (FPL)
+
+``` {r}
+
+summary(df2$fpl)
+
+# Subjective Well-Being (SWB) measures by Federal Poverty Level (FPL):
+
+
+
+
+
+
+
+
+
+```
+
 
 # Analysis
 
