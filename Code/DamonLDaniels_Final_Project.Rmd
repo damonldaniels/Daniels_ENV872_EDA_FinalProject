@@ -1694,11 +1694,11 @@ mean_FWB_by_fpl.list2 <- data.frame(
     unlist(
       mean_FWB_by_fpl.list), nrow=length(mean_FWB_by_fpl.list), byrow=TRUE)) 
 
-colnames(mean_FWB_by_fpl.list2) <- c("Mean FWB Score")
+colnames(mean_FWB_by_fpl.list2) <- c("TK")
 
 mean_FWB_by_fpl.list2$meanfwB <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
 
-mean_FWB_by_fpl2 <- select(mean_FWB_by_fpl.list2, meanfwB:"Mean FWB Score")
+mean_FWB_by_fpl2 <- select(mean_FWB_by_fpl.list2, meanfwB:TK)
 
 
 #Plots
@@ -1706,7 +1706,7 @@ mean_FWB_by_fpl2 <- select(mean_FWB_by_fpl.list2, meanfwB:"Mean FWB Score")
 fplLevelsFWB <- ggplot(mean_FWB_by_fpl2) +
   geom_col(aes(
     x=factor(
-      meanfwB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean FWB Score", group = 1, color = meanfwB, fill = meanfwB))
+      meanfwB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=TK, group = 1, color = meanfwB, fill = meanfwB))
 print(fplLevelsFWB)
 
 fplLevelsFWB <- fplLevelsFWB +
@@ -1765,11 +1765,11 @@ mean_FS_by_fpl.list2 <- data.frame(
     unlist(
       mean_FS_by_fpl.list), nrow=length(mean_FS_by_fpl.list), byrow=TRUE)) 
 
-colnames(mean_FS_by_fpl.list2) <- c("Mean FS Score")
+colnames(mean_FS_by_fpl.list2) <- c("TK")
 
 mean_FS_by_fpl.list2$meanfS <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
 
-mean_FS_by_fpl2 <- select(mean_FS_by_fpl.list2, meanfS:"Mean FS Score")
+mean_FS_by_fpl2 <- select(mean_FS_by_fpl.list2, meanfS:TK)
 
 
 #Plots
@@ -1777,7 +1777,7 @@ mean_FS_by_fpl2 <- select(mean_FS_by_fpl.list2, meanfS:"Mean FS Score")
 fplLevelsFS <- ggplot(mean_FS_by_fpl2) +
   geom_col(aes(
     x=factor(
-      meanfS, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean FS Score", group = 1, color = meanfS, fill = meanfS))
+      meanfS, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=TK, group = 1, color = meanfS, fill = meanfS))
 print(fplLevelsFS)
 
 fplLevelsFS <- fplLevelsFS +
@@ -1837,11 +1837,11 @@ mean_LM_by_fpl.list2 <- data.frame(
     unlist(
       mean_LM_by_fpl.list), nrow=length(mean_LM_by_fpl.list), byrow=TRUE)) 
 
-colnames(mean_LM_by_fpl.list2) <- c("Mean LM Score")
+colnames(mean_LM_by_fpl.list2) <- c("TK")
 
 mean_LM_by_fpl.list2$meanLM <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
 
-mean_LM_by_fpl2 <- select(mean_LM_by_fpl.list2, meanLM:"Mean LM Score")
+mean_LM_by_fpl2 <- select(mean_LM_by_fpl.list2, meanLM:TK)
 
 
 #Plots
@@ -1849,7 +1849,7 @@ mean_LM_by_fpl2 <- select(mean_LM_by_fpl.list2, meanLM:"Mean LM Score")
 fplLevelsLM <- ggplot(mean_LM_by_fpl2) +
   geom_col(aes(
     x=factor(
-      meanLM, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean LM Score", group = 1, color = meanLM, fill = meanLM))
+      meanLM, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=TK, group = 1, color = meanLM, fill = meanLM))
 print(fplLevelsLM)
 
 fplLevelsLM <- fplLevelsLM +
@@ -1857,7 +1857,7 @@ fplLevelsLM <- fplLevelsLM +
   labs(title = "Lusardi & Mitchell Financial Knowledge Scale Score", x = "", y = "")
 print(fplLevelsLM)
 
-# Mean KH Score measures by Federal Poverty Level ********
+# Mean KH Score measures by Federal Poverty Level
 
 mean_KHscore <- mean(as.integer(df3$KHscore))
 print(mean_KHscore)
@@ -1908,11 +1908,11 @@ mean_KH_by_fpl.list2 <- data.frame(
     unlist(
       mean_KH_by_fpl.list), nrow=length(mean_KH_by_fpl.list), byrow=TRUE)) 
 
-colnames(mean_KH_by_fpl.list2) <- c("Mean KH Score")
+colnames(mean_KH_by_fpl.list2) <- c("TK")
 
 mean_KH_by_fpl.list2$meanKH <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
 
-mean_KH_by_fpl2 <- select(mean_KH_by_fpl.list2, meanKH:"Mean KH Score")
+mean_KH_by_fpl2 <- select(mean_KH_by_fpl.list2, meanKH:TK)
 
 
 #Plots
@@ -1920,7 +1920,7 @@ mean_KH_by_fpl2 <- select(mean_KH_by_fpl.list2, meanKH:"Mean KH Score")
 fplLevelsKH <- ggplot(mean_KH_by_fpl2) +
   geom_col(aes(
     x=factor(
-      meanKH, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean KH Score", group = 1, color = meanKH, fill = meanKH))
+      meanKH, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=TK, group = 1, color = meanKH, fill = meanKH))
 print(fplLevelsKH)
 
 fplLevelsKH <- fplLevelsKH +
