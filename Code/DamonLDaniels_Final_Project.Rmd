@@ -1458,13 +1458,14 @@ write.csv(df, row.names = FALSE,
   # Columns 4-6   (SWB - Subjective Well-Being Scores, 3 separate questions)
   # Column  7     (FWBscore - Financial Well-Being Scale Score, Total)
   # Column  18    (FSscore - Financial Skill Scale Scores)
+  # Column  51    (LMscore - Lusardi & Mitchell Financial Knowledge Scale Score)
   # Column  58    (KHscore - Knoll & Houts Financial Knowledge Scale Score) 
 
 # Create New Dataframe
 
 dim(df)
 
-df2 <- select(df, PUF_ID:SWB_3, FWBscore, FSscore, KHscore)
+df2 <- select(df, PUF_ID:SWB_3, FWBscore, FSscore, LMscore, KHscore)
 dim(df2)
 
 # (1) Remove extra text from all cells that also contain number values:
@@ -1525,7 +1526,7 @@ summary(df2)
 
 \newpage
 
-# Summary Data by Federal Poverty Level (FPL)
+#  Data Visualizations, by Federal Poverty Level (FPL)
 
 ``` {r}
 
@@ -1598,14 +1599,16 @@ mean_SWB_by_fpl2 <- data.frame(
 
 colnames(mean_SWB_by_fpl2) <- c("SWB_1", "SWB_2", "SWB_3")
 
-mean_SWB_by_fpl2$meanSWB <- c("Total Mean SWB", "Mean SWB, >100% FPL", "Mean SWB, 100% - 199% FPL", "Mean SWB, 200%+ FPL")
+mean_SWB_by_fpl2$meanSWB <- c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")
 
 mean_SWB_by_fpl2 <- select(mean_SWB_by_fpl2, meanSWB,SWB_1,SWB_2,SWB_3)
+
+# Plots
 
 fplLevels <- ggplot(mean_SWB_by_fpl2) +
   geom_col(aes(
     x=factor(
-      meanSWB, level=c("Total Mean SWB", "Mean SWB, >100% FPL", "Mean SWB, 100% - 199% FPL", "Mean SWB, 200%+ FPL")), y=SWB_1, group = 1, color = meanSWB, fill = meanSWB))
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_1, group = 1, color = meanSWB, fill = meanSWB))
 print(fplLevels)
 
 fplLevels <- fplLevels +
@@ -1617,7 +1620,7 @@ fplLevels2 <- ggplot(mean_SWB_by_fpl2) +
   theme(legend.position = "none") +
   geom_col(aes(
     x=factor(
-      meanSWB, level=c("Total Mean SWB", "Mean SWB, >100% FPL", "Mean SWB, 100% - 199% FPL", "Mean SWB, 200%+ FPL")), y=SWB_2, group = 1, color = meanSWB, fill = meanSWB))
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_2, group = 1, color = meanSWB, fill = meanSWB))
 print(fplLevels2)
 
 fplLevels2 <- fplLevels2 +
@@ -1629,7 +1632,7 @@ fplLevels3 <- ggplot(mean_SWB_by_fpl2) +
   theme(legend.position = "bottom") +
   geom_col(aes(
     x=factor(
-      meanSWB, level=c("Total Mean SWB", "Mean SWB, >100% FPL", "Mean SWB, 100% - 199% FPL", "Mean SWB, 200%+ FPL")), y=SWB_3, group = 1, color = meanSWB, fill = meanSWB))
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_3, group = 1, color = meanSWB, fill = meanSWB))
 print(fplLevels3)
 
 fplLevels3 <- fplLevels3 +
@@ -1640,8 +1643,76 @@ SWB_by_FPL <- plot_grid(fplLevels, fplLevels2, fplLevels3,
   nrow = 1, align = "h", rel_heights = c(1, 1))
 print(SWB_by_FPL)
 
+# Mean FWB Score measures by Federal Poverty Level
+
+mean_FWBscore <- mean(as.integer(df3$FWBscore))
+print(mean_FWBscore)
+
+df3_meanFWBscore.processed <- 
+  df3 %>%
+  select(FWBscore)
+df3_meanFWBscore.processed <-
+  df3 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(df3$FWBscore)))
+
+meanFWBscore_byFPL1 <- 
+  df3 %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FWBscore)
+meanFWBscore_byFPL1 <- 
+  meanFWBscore_byFPL1 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(meanFWBscore_byFPL1$FWBscore)))
+
+meanFWBscore_byFPL2 <- 
+  df3 %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FWBscore)
+meanFWBscore_byFPL2 <- 
+  meanFWBscore_byFPL2 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(meanFWBscore_byFPL2$FWBscore)))
+
+meanFWBscore_byFPL3 <- 
+  df3 %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FWBscore)
+meanFWBscore_byFPL3 <- 
+  meanFWBscore_byFPL3 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(meanFWBscore_byFPL3$FWBscore)))
+
+mean_FWB_by_fpl.list <-
+  list(
+    meanFWBscore_byFPL3, meanFWBscore_byFPL2, meanFWBscore_byFPL1, df3_meanFWBscore.processed)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), mean_FWB_by_fpl.list)
+
+mean_FWB_by_fpl.list2 <- data.frame(
+  matrix(
+    unlist(
+      mean_FWB_by_fpl.list), nrow=length(mean_FWB_by_fpl.list), byrow=TRUE)) 
+
+colnames(mean_FWB_by_fpl.list2) <- c("Mean FWB Score")
+
+mean_FWB_by_fpl.list2$meanfwB <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+mean_FWB_by_fpl2 <- select(mean_FWB_by_fpl.list2, meanfwB:"Mean FWB Score")
 
 
+#Plots
+
+fplLevelsFWB <- ggplot(mean_FWB_by_fpl2) +
+  geom_col(aes(
+    x=factor(
+      meanfwB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean FWB Score", group = 1, color = meanfwB, fill = meanfwB))
+print(fplLevelsFWB)
+
+fplLevelsFWB <- fplLevelsFWB +
+  theme(legend.position = "bottom") +
+  labs(title = "Financial Well-Being Scale Score", x = "", y = "")
+print(fplLevelsFWB)
 
 
 
