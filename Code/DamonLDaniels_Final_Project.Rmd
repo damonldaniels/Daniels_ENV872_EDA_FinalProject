@@ -1714,6 +1714,219 @@ fplLevelsFWB <- fplLevelsFWB +
   labs(title = "Financial Well-Being Scale Score", x = "", y = "")
 print(fplLevelsFWB)
 
+# Mean FS Score measures by Federal Poverty Level
+
+mean_FSscore <- mean(as.integer(df3$FSscore))
+print(mean_FSscore)
+
+df3_mean_FSscore.processed <- 
+  df3 %>%
+  select(FSscore)
+df3_meanFSscore.processed <-
+  df3 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(df3$FSscore)))
+
+meanFSscore_byFPL1 <- 
+  df3 %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FSscore)
+meanFSscore_byFPL1 <- 
+  meanFSscore_byFPL1 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(meanFSscore_byFPL1$FSscore)))
+
+meanFSscore_byFPL2 <- 
+  df3 %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FSscore)
+meanFSscore_byFPL2 <- 
+  meanFSscore_byFPL2 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(meanFSscore_byFPL2$FSscore)))
+
+meanFSscore_byFPL3 <- 
+  df3 %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FSscore)
+meanFSscore_byFPL3 <- 
+  meanFSscore_byFPL3 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(meanFSscore_byFPL3$FSscore)))
+
+mean_FS_by_fpl.list <-
+  list(
+    meanFSscore_byFPL3, meanFSscore_byFPL2, meanFSscore_byFPL1, df3_meanFSscore.processed)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), mean_FS_by_fpl.list)
+
+mean_FS_by_fpl.list2 <- data.frame(
+  matrix(
+    unlist(
+      mean_FS_by_fpl.list), nrow=length(mean_FS_by_fpl.list), byrow=TRUE)) 
+
+colnames(mean_FS_by_fpl.list2) <- c("Mean FS Score")
+
+mean_FS_by_fpl.list2$meanfS <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+mean_FS_by_fpl2 <- select(mean_FS_by_fpl.list2, meanfS:"Mean FS Score")
+
+
+#Plots
+
+fplLevelsFS <- ggplot(mean_FS_by_fpl2) +
+  geom_col(aes(
+    x=factor(
+      meanfS, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean FS Score", group = 1, color = meanfS, fill = meanfS))
+print(fplLevelsFS)
+
+fplLevelsFS <- fplLevelsFS +
+  theme(legend.position = "bottom") +
+  labs(title = "Financial Skill Scale Score", x = "", y = "")
+print(fplLevelsFS)
+
+
+# Mean LM Score measures by Federal Poverty Level
+
+mean_LMscore <- mean(as.integer(df3$LMscore))
+print(mean_LMscore)
+
+df3_mean_LMscore.processed <- 
+  df3 %>%
+  select(LMscore)
+df3_meanLMscore.processed <-
+  df3 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(df3$LMscore)))
+
+meanLMscore_byFPL1 <- 
+  df3 %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(LMscore)
+meanLMscore_byFPL1 <- 
+  meanLMscore_byFPL1 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(meanLMscore_byFPL1$LMscore)))
+
+meanLMscore_byFPL2 <- 
+  df3 %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(LMscore)
+meanLMscore_byFPL2 <- 
+  meanLMscore_byFPL2 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(meanLMscore_byFPL2$LMscore)))
+
+meanLMscore_byFPL3 <- 
+  df3 %>%
+  filter(fpl == "<100% FPL") %>%
+  select(LMscore)
+meanLMscore_byFPL3 <- 
+  meanLMscore_byFPL3 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(meanLMscore_byFPL3$LMscore)))
+
+mean_LM_by_fpl.list <-
+  list(
+    meanLMscore_byFPL3, meanLMscore_byFPL2, meanLMscore_byFPL1, df3_meanLMscore.processed)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), mean_LM_by_fpl.list)
+
+mean_LM_by_fpl.list2 <- data.frame(
+  matrix(
+    unlist(
+      mean_LM_by_fpl.list), nrow=length(mean_LM_by_fpl.list), byrow=TRUE)) 
+
+colnames(mean_LM_by_fpl.list2) <- c("Mean LM Score")
+
+mean_LM_by_fpl.list2$meanLM <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+mean_LM_by_fpl2 <- select(mean_LM_by_fpl.list2, meanLM:"Mean LM Score")
+
+
+#Plots
+
+fplLevelsLM <- ggplot(mean_LM_by_fpl2) +
+  geom_col(aes(
+    x=factor(
+      meanLM, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean LM Score", group = 1, color = meanLM, fill = meanLM))
+print(fplLevelsLM)
+
+fplLevelsLM <- fplLevelsLM +
+  theme(legend.position = "bottom") +
+  labs(title = "Lusardi & Mitchell Financial Knowledge Scale Score", x = "", y = "")
+print(fplLevelsLM)
+
+# Mean KH Score measures by Federal Poverty Level ********
+
+mean_KHscore <- mean(as.integer(df3$KHscore))
+print(mean_KHscore)
+
+df3_mean_KHscore.processed <- 
+  df3 %>%
+  select(KHscore)
+df3_meanKHscore.processed <-
+  df3 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(df3$KHscore)))
+
+meanKHscore_byFPL1 <- 
+  df3 %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(KHscore)
+meanKHscore_byFPL1 <- 
+  meanKHscore_byFPL1 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(meanKHscore_byFPL1$KHscore)))
+
+meanKHscore_byFPL2 <- 
+  df3 %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(KHscore)
+meanKHscore_byFPL2 <- 
+  meanKHscore_byFPL2 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(meanKHscore_byFPL2$KHscore)))
+
+meanKHscore_byFPL3 <- 
+  df3 %>%
+  filter(fpl == "<100% FPL") %>%
+  select(KHscore)
+meanKHscore_byFPL3 <- 
+  meanKHscore_byFPL3 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(meanKHscore_byFPL3$KHscore)))
+
+mean_KH_by_fpl.list <-
+  list(
+    meanKHscore_byFPL3, meanKHscore_byFPL2, meanKHscore_byFPL1, df3_meanKHscore.processed)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), mean_KH_by_fpl.list)
+
+mean_KH_by_fpl.list2 <- data.frame(
+  matrix(
+    unlist(
+      mean_KH_by_fpl.list), nrow=length(mean_KH_by_fpl.list), byrow=TRUE)) 
+
+colnames(mean_KH_by_fpl.list2) <- c("Mean KH Score")
+
+mean_KH_by_fpl.list2$meanKH <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+mean_KH_by_fpl2 <- select(mean_KH_by_fpl.list2, meanKH:"Mean KH Score")
+
+
+#Plots
+
+fplLevelsKH <- ggplot(mean_KH_by_fpl2) +
+  geom_col(aes(
+    x=factor(
+      meanKH, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y="Mean KH Score", group = 1, color = meanKH, fill = meanKH))
+print(fplLevelsKH)
+
+fplLevelsKH <- fplLevelsKH +
+  theme(legend.position = "bottom") +
+  labs(title = "Knoll & Houts Financial Knowledge Scale Score", x = "", y = "")
+print(fplLevelsKH)
 
 
 ```
