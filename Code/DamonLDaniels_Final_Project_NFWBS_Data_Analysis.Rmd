@@ -1,0 +1,123 @@
+---
+title: "NWBS Wrangled Dataset -- Data Analysis"
+author: Damon L. Daniels
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+``` {r setup, include=FALSE}
+# Set your working directory
+
+setwd("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject")
+getwd()
+
+# Load your packages
+
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+library(ggplot2)
+library(ggthemes)
+library(cowplot)
+library(agricolae)
+library(knitr)
+
+# Set your ggplot theme
+
+DLDtheme <- theme_classic(base_size = 8) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top") +
+  theme(axis.text.x = element_text(vjust = 1, hjust=1))
+
+theme_set(DLDtheme)
+
+```
+
+``` {r Load Processed File}
+
+# Load datasets
+
+NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject/Data/Processed_Data/NFWBS_cleaned_PROCESSED.csv")
+
+```
+
+``` {r Analysis, Research Question, fig.height = 3, fig.width = 4}
+
+# Research Question:
+
+# What associations can be drawn between an (1) an individual’s or household’s federal poverty level (FPL), (2) self-reported assessments of financial well-being, and (3) measures of financial knowledge?
+
+A.SWB_1.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_1 ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(A.SWB_1.regression)
+
+A.SWB_2.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_2 ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(A.SWB_2.regression)
+  
+A.SWB_3.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_3 ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(A.SWB_3.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_1.regression)
+par(mfrow = c(1,1))
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_2.regression)
+par(mfrow = c(1,1))
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_3.regression)
+par(mfrow = c(1,1))
+
+B.FWB.regression <-
+  lm(NFWBS.wrangled.processed$FWBscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(B.FWB.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(B.FWB.regression)
+par(mfrow = c(1,1))
+
+C.FS.regression <-
+  lm(NFWBS.wrangled.processed$FSscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(C.FS.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(C.FS.regression)
+par(mfrow = c(1,1))
+
+D.LM.regression <-
+  lm(NFWBS.wrangled.processed$LMscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(D.LM.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(D.LM.regression)
+par(mfrow = c(1,1))
+
+E.KH.regression <-
+  lm(NFWBS.wrangled.processed$KHscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(E.KH.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(E.KH.regression)
+par(mfrow = c(1,1))
+
+
+
+
+```
+
+
