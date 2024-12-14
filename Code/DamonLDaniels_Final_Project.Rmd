@@ -7,6 +7,7 @@
 \newpage
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
 # Set your working directory
 
 setwd("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject")
@@ -36,7 +37,7 @@ theme_set(DLDtheme)
 ```
 
 ```{r setup - Load Dataset, include=FALSE}
-
+knitr::opts_chunk$set(include = FALSE)
 # Load your datasets
 
 df = 
@@ -1447,7 +1448,7 @@ write.csv(df, row.names = FALSE,
 
 ```
 
-``` {r Data Wrangling, include=FALSE}
+```{r Data Wrangling, include=FALSE}
 
 # Goal: wrangle data containing information about (1) income levels, (2) self-reported levels of financial literacy, (3) self-reported levels of financial knowledge, and (4) Two separate scales that gauge correctness of self-reported levels of financial knowledge
 
@@ -1512,7 +1513,7 @@ write.csv(df2, row.names = FALSE,
 
 # View dimensions, column names, and variable type for each column:
 
-``` {r summary data for dataset}
+```{r Summary Data, echo=FALSE}
 
 class(df2)
 colnames(df2)
@@ -1528,7 +1529,7 @@ summary(df2)
 
 #  Data Visualizations, by Federal Poverty Level (FPL)
 
-``` {r}
+```{Data Visualizations, by Federal Poverty Level, echo=FALSE}
 
 summary(df2$fpl)
 
@@ -1934,19 +1935,29 @@ print(fplLevelsKH)
 
 # Analysis
 
+## Question 1: What observations can be inferred by viewing each of the finanicial well-being, skills and knowledge measures that have been charted visually?
 
+# Figure 1 displays the average numerical response level by survey participants for each of the Subjective Well-Being (SWB) Questions, as three separate graphs (1 graph per survey question). Participants were asked to report their sentiments, using a scale ranging from 1 to 7 (with "1" meaning "Strongly disagree" and "7" meaning "Strongly Agree") after hearing each of the following statements: (1) "I am satisfied with my life"; (2) "I am optimistic about my future"; (3) "If I work hard today, I will be more successful in the future."
 
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+# For Question 1 -- "I am satisfied with my life" -- the average self-reported SWB assessment was approximately 5.79, meaning that as a sample, participants were likely on average to report firm agreement with this statement. For Question 2 -- "I am optimistic about my future" -- the average self-reported SWB assessment was approximately 6.12, meaning that as a sample, participants were likely on average to report firmly agree with this statement. For Question 3 -- "If I work hard today, I will be more successful in the future" -- participants reported the highest level of agreement, at an average SWB level of 6.34.
 
-## Question 2: 
+# Comparing each respective overall average to the averages that were calculated by  disaggregating partcipant responses by Federal Poverty Level (FPL) status. Interestingly, for each of the three questions, individuals with earnings either at the FPL, or up to 199% above it, self-reported the highest SWB levels.
 
+# Figure 2 displays both the overall and by-FPL measures of Financial Well-Being Scale Score (FWB). Recorded scores ranged from scores of 14 to 95; the full score scale ranged from 0 to 100. Approximately 86 different numerical scores were recorded. These scores were accumulated from responses to ten different questions and participant responses related to financial well-being. For Figure 2, the overall average is approximately 43.01. The average FWB for particpants earning less than 100% of the FPL measured the highest, at 45.65; at 100% to 199% of the FPL, and 200% and above the FPL, FWB measures were approximately 36.23 and 32.31, respectively.
 
+# Similar trends in Figure 2 can be seen in Figure 3, which displays the average Financial Skill (FS) Scale Score overall and by FPL. Measured on a similar 0 to 100 scale as the FWB, scores are generally expected to fall within a middle threshold; extremely high or extremely low number scores are uncommon. The overall average scale score was 42.30; 43.45 for surveyed individuals whose earnings were lower than the FPL; 38.81 for earners between 100% and 199% of the FPL; and 38.33 for participants earning 200% above the FPL or higher.
 
+# Figure 4 displays average Lusardi and Mitchell (LM) Financial Knowledge Scale scores by overall averages as well as averages by FPL. Scores are calculated from a financial literacy questionnaire, scored on a scale ranging from 0 to 9, that assesses participants' knowledge of compound interest, risk diversification, and inflation concepts based on questions that are answered correctly or incorrectly. Once again, similar trends emerged. The overall LM score average score was 3.51, with a slight uptick in average score for individuals who earned at lower than the FPL (3.63), a decrease for people who earned between 100% and 199% of the FPL (3.26), and a further decrease for individuals who earned above 200% and higher than the FPL (2.91).
+
+# Lastly, Figure 5 displays average Knoll and Houts (KH) Financial Knowledge Scale scores, which has the similar purpose and structure as Lusardi's and Mitchell's scale but add questions about interest and the time value of money. Yet again, similar trends occured. The overall KH score average score was 6.11, with an uptick in average score for individuals who earned at lower than the FPL (6.62), a sizable decrease for people who earned between 100% and 199% of the FPL (4.80), and a further decrease for individuals who earned above 200% and higher than the FPL (4.10).
 
 \newpage
 
 # Summary and Conclusions
 
+# The Consumer Financial Protection Bureau's National Financial Well-Being Survey to examine relationships between self-reported measures of financial well-being to three different assessments of financial literacy, with an emphasis on potential differences that occurred for earnings below, at and above the Federal Poverty Level. Self-reported measures of financial well-being were high among survey participants. On average, respondents are satisifed with their lives, are optimistic about their futures, and believe that hard work will lead to good future financial outcomes. Participants' Financial Well-Being scores fall within average ranges, both overall and across different earnings tiers by Federal Poverty Level. Participants who earned less than the Federal Poverty Level threshold scored highest on this scale, followed by individuals earning between 100% and 199% of the Federal Poverty Level and respondents who earned twice as much as the Federal Poverty level or above, respectively. Similar rankings of peformance occured for each of the financial literacy scores that were assessed.
+
+# Overall, from the data analysis at hand it appears that measurements of financial well-being and financial literacy differed little between teh different income groups used by the CFPB and for this dataset. This research, howver, is not exhaustive; in fact, it is preliminary. With further time to investigate this CFPB data more thoroughly, a number of statistical calculations would have been possible. For example, further visualizations could have examined if that were any statistically significant correlations between the measures studied for this experiment, including statistical analysis such as t-tests, ANOVA and the like. Further graphical disaggregations may have also been possible. For example, further analysis may have allowed the researchers for this experiment to explore differences in expressions of financial literacy that could be broken down not only by Federal Poverty Level, but also by the numerical value of participants' answers to each of the Subjective Well-Being questions. Meaning, it may be useful to assess the financial literacy of a person or group to earned less than the Federal Poverty threshold, held high financial knowledge according to the scales used for this survey, yet may have reported to subjectively feel that working hard may not bring future financial success. Or, some other combination of earnings, subjective financial outlooks and financial literacy might possibiliy emerge outside of the trends interpreted so far. 
 
 \newpage
 
