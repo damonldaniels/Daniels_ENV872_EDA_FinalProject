@@ -1,0 +1,79 @@
+---
+title: "NWBS Wrangled Dataset -- Data Cleaning"
+author: Damon L. Daniels
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# Set your working directory
+
+setwd("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject")
+getwd()
+
+# Load your packages
+
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+library(ggplot2)
+library(ggthemes)
+library(cowplot)
+library(agricolae)
+library(knitr)
+
+# Set your ggplot theme
+
+DLDtheme <- theme_classic(base_size = 8) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top") +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust=1))
+
+theme_set(DLDtheme)
+
+```
+
+``` {r Load Processed File}
+
+# Load your datasets
+
+NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject/Data/Processed_Data/NFWBS_wrangled_PROCESSED.csv")
+
+```
+
+``` {r Summary Data - NFWBS Wrangled Dataset}
+
+view(NFWBS.wrangled.processed)
+str(NFWBS.wrangled.processed)
+colnames(NFWBS.wrangled.processed)
+
+```
+
+``` {r NFWBS Wrangled Dataset - Replace Cell Values Containing 1) Numbers with Text; and 2) Text}
+
+# (1) Remove extra text from all cells that also contain number values
+# (2) Replace all cells containing [a] "Response not written to database," and [b] "Refused", with "0"
+
+NFWBS.wrangled.processed <- NFWBS.wrangled.processed %>%
+  mutate_all(as.character)
+NFWBS.wrangled.processed[NFWBS.wrangled.processed == "7 Strongly agree"] <- 7
+NFWBS.wrangled.processed[NFWBS.wrangled.processed == "1 Strongly disagree"] <- 1
+
+NFWBS.wrangled.processed[NFWBS.wrangled.processed == "Response not written to database"] <- 0
+NFWBS.wrangled.processed[NFWBS.wrangled.processed == "Refused"] <- 0
+
+NFWBS.wrangled.processed <- NFWBS.wrangled.processed %>% mutate_if(is.character,as.factor)
+
+```
+
+``` {r Write Processed File}
+
+write.csv(NFWBS.wrangled.processed, row.names = FALSE,
+          file = "./Data/Processed_Data/NFWBS_cleaned_PROCESSED.csv")
+
+```
+
+

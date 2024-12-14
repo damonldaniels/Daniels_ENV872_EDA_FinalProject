@@ -1,0 +1,490 @@
+---
+title: "NWBS Wrangled Dataset -- Data Exploration"
+author: Damon L. Daniels
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# Set your working directory
+
+setwd("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject")
+getwd()
+
+# Load your packages
+
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+library(ggplot2)
+library(ggthemes)
+library(cowplot)
+library(agricolae)
+library(knitr)
+
+# Set your ggplot theme
+
+DLDtheme <- theme_classic(base_size = 8) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top") +
+  theme(axis.text.x = element_text(vjust = 1, hjust=1))
+
+theme_set(DLDtheme)
+
+```
+
+``` {r Load Processed File}
+
+# Load your datasets
+
+NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject/Data/Processed_Data/NFWBS_cleaned_PROCESSED.csv")
+
+```
+
+``` {r Summary Data - NFWBS Wrangled Dataset}
+
+view(NFWBS.wrangled.processed)
+str(NFWBS.wrangled.processed)
+colnames(NFWBS.wrangled.processed)
+
+```
+
+``` {r Initial Plots/Visualizations - NFWBS Wrangled Dataset, SWB}
+
+NFWBS.wrangled.processed.A.SWB1  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_1)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(title = "Subjective Well-Being") +
+  labs(subtitle = "Q1: I am satisfied with my life") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+print(NFWBS.wrangled.processed.A.SWB1)
+
+NFWBS.wrangled.processed.A.SWB2  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_2)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(subtitle = "Q2: I am optimistic about my future") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+print(NFWBS.wrangled.processed.A.SWB2)
+
+NFWBS.wrangled.processed.A.SWB3  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_3)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(subtitle = "Q3: If I work hard today, I will be more successful in the future") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+print(NFWBS.wrangled.processed.A.SWB3)
+
+NFWBS.wrangled.processed.B.SWB.plotgrid <-
+  plot_grid(NFWBS.wrangled.processed.A.SWB1, NFWBS.wrangled.processed.A.SWB2, NFWBS.wrangled.processed.A.SWB3,
+  nrow = 1, align = "vh", rel_heights = c(1, 1))
+print(NFWBS.wrangled.processed.B.SWB.plotgrid)
+
+```
+
+``` {r Data Visualizations, by Federal Poverty Level}
+
+# Mean SWBs by FPL
+
+NFWBS.wrangled.processed.C.SWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  group_by(SWB_1, SWB_2, SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl1 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl1 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl2 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl2 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl3 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl3 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_3)))
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl <-
+  list(
+    NFWBS.wrangled.processed.C.SWBmeans.fpl3, NFWBS.wrangled.processed.C.SWBmeans.fpl2, NFWBS.wrangled.processed.C.SWBmeans.fpl1, NFWBS.wrangled.processed.C.SWBmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.C2.SWBmeans.by_fpl)
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.C2.SWBmeans.by_fpl), nrow=length(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) <- c("SWB_1", "SWB_2", "SWB_3")
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2$meanSWB <- c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2 <- select(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2, meanSWB,SWB_1,SWB_2,SWB_3)
+
+# SWBs by FPL Plots
+
+#   SWB Q1
+NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_1, group = 1, color = meanSWB, fill = meanSWB))
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot)
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot +
+  theme(legend.position = "none") +
+  labs(title = "Subjective Well-Being Questions - Means, by Federal Poverty Level (FPL)", x = "", y = "I am satisfied with my life")
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot)
+
+#   SWB Q2
+NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_2, group = 1, color = meanSWB, fill = meanSWB))
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot)
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot +
+  theme(legend.position = "none") +
+   labs(title = "", x = "", y = "I am optimistic about my future")
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot)
+
+#   SWB Q3
+NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_3, group = 1, color = meanSWB, fill = meanSWB))
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot)
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot +
+  theme(legend.position = "none") +
+  labs(title = "", x = "", y = "If I work hard today, I will be more successful in the future")
+print(NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot)
+
+NFWBS.wrangled.processed.D2.SWB_by_FPLplot <- plot_grid(NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot, NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot, NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot,
+  nrow = 1, align = "h", rel_heights = c(1, 1)) +
+  theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_text(size = 8))+
+  theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust = 1))
+print(NFWBS.wrangled.processed.D2.SWB_by_FPLplot)
+  
+# Mean FWB Score by FPL
+
+NFWBS.wrangled.processed.E.FWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBmeans <-
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBmeans$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL1 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL1 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL1$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL2 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL2 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL2$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL3 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL3 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL3$FWBscore)))
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.E.FWBbyFPL3, NFWBS.wrangled.processed.E.FWBbyFPL2, NFWBS.wrangled.processed.E.FWBbyFPL1, NFWBS.wrangled.processed.E.FWBmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.E2.FWBbyFPL.list)
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.E2.FWBbyFPL.list), nrow=length(NFWBS.wrangled.processed.E2.FWBbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) <- c("mean")
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2$meanfwB <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2 <- select(NFWBS.wrangled.processed.E2.FWBbyFPL.list2, meanfwB:mean)
+
+colnames(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) <- c("FPL","mean")
+
+# FWB by FPL Plots
+
+NFWBS.wrangled.processed.E3.FWBbyFPL <-
+  ggplot(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+print(NFWBS.wrangled.processed.E3.FWBbyFPL)
+
+NFWBS.wrangled.processed.E3.FWBbyFPL <- NFWBS.wrangled.processed.E3.FWBbyFPL +
+  theme(legend.position = "bottom") +
+  labs(title = "Financial Well-Being Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.E3.FWBbyFPL)
+
+# Mean FS Score by FPL
+
+NFWBS.wrangled.processed.F.FSmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSmeans <-
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSmeans$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL1 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL1 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL1$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL2 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL2 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL2$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL3 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL3 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL3$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.F.FSbyFPL3, NFWBS.wrangled.processed.F.FSbyFPL2, NFWBS.wrangled.processed.F.FSbyFPL1, NFWBS.wrangled.processed.F.FSmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.F.FSbyFPL.list)
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.F.FSbyFPL.list), nrow=length(NFWBS.wrangled.processed.F.FSbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.F.FSbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2$meanfS <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2 <- select(NFWBS.wrangled.processed.F.FSbyFPL.list2, meanfS:TK)
+
+colnames(NFWBS.wrangled.processed.F.FSbyFPL.list2) <- c("FPL","mean")
+
+# FS by FPL Plot
+
+NFWBS.wrangled.processed.F.FSbyFPL <- ggplot(NFWBS.wrangled.processed.F.FSbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+print(NFWBS.wrangled.processed.F.FSbyFPL)
+
+NFWBS.wrangled.processed.F.FSbyFPL <- NFWBS.wrangled.processed.F.FSbyFPL +
+  theme(legend.position = "bottom") +
+  labs(title = "Financial Skill Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.F.FSbyFPL)
+
+# Mean LM Score by FPL
+
+NFWBS.wrangled.processed.G.LMmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMmeans <-
+  NFWBS.wrangled.processed.G.LMmeans %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMmeans$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL1 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL1 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL1$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL2 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL2 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL2$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL3 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL3 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL3$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.G.LMbyFPL3, NFWBS.wrangled.processed.G.LMbyFPL2, NFWBS.wrangled.processed.G.LMbyFPL1, NFWBS.wrangled.processed.G.LMmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.G.LMbyFPL.list)
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.G.LMbyFPL.list), nrow=length(NFWBS.wrangled.processed.G.LMbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.G.LMbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2$meanLM <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2 <- select(NFWBS.wrangled.processed.G.LMbyFPL.list2, meanLM:TK)
+
+colnames(NFWBS.wrangled.processed.G.LMbyFPL.list2) <- c("FPL","mean")
+
+# LM by FPL Plot
+
+NFWBS.wrangled.processed.G.LMbyFPL <- ggplot(NFWBS.wrangled.processed.G.LMbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+print(NFWBS.wrangled.processed.G.LMbyFPL)
+
+NFWBS.wrangled.processed.G.LMbyFPL <- NFWBS.wrangled.processed.G.LMbyFPL +
+  theme(legend.position = "bottom") +
+  labs(title = "Lusardi & Mitchell Financial Knowledge Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.G.LMbyFPL)
+
+# Mean KH Score by FPL
+
+NFWBS.wrangled.processed.H.KHmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHmeans <-
+  NFWBS.wrangled.processed.H.KHmeans %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHmeans$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL1 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL1 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL1$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL2 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL2 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL2$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL3 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL3 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL3$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.H.KHbyFPL3, NFWBS.wrangled.processed.H.KHbyFPL2, NFWBS.wrangled.processed.H.KHbyFPL1, NFWBS.wrangled.processed.H.KHmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.H.KHbyFPL.list)
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.H.KHbyFPL.list), nrow=length(NFWBS.wrangled.processed.H.KHbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.H.KHbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2$meanKH <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2 <- select(NFWBS.wrangled.processed.H.KHbyFPL.list2, meanKH:TK)
+
+colnames(NFWBS.wrangled.processed.H.KHbyFPL.list2) <- c("FPL","mean")
+
+# KH by FPL Plot
+
+NFWBS.wrangled.processed.H.KHbyFPL <- ggplot(NFWBS.wrangled.processed.H.KHbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+print(NFWBS.wrangled.processed.H.KHbyFPL)
+
+NFWBS.wrangled.processed.H.KHbyFPL <- NFWBS.wrangled.processed.H.KHbyFPL +
+  theme(legend.position = "bottom") +
+  labs(title = "Knoll & Houts Financial Knowledge Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.H.KHbyFPL)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
