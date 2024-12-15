@@ -5,7 +5,7 @@ Title Damon L. Daniels ENV 872 Course Project | CFPB National Financial Well-Bei
 Repository Title -- Damon L. Daniels ENV 872 Course Project | CFPB National Financial Well-Being Survey Exploration
 
 Summary
-This repository contains files, documents and additional materials pertaining to a prelminary exploration of the Consumer Financial Protection Bureau's (CFPB) 2016 National Financial Well-Being Survey (NFWBS). Deciding that in order to make assessments and develop the best tools to promote financial literacy among U.S. consumers, the CFPB created its own financial well-being scale, and then conducted a nationally-representative survey using this scale during the Fall of 2016. The dataset created from this research is currently accessible for free for users through download from the CFPB website (located here: https://www.consumerfinance.gov/data-research/financial-well-being-survey-data/). This repository contains this dataset, as well as relevant documents to interpret the various measures and variables that this dataset contains, including various user guides and the survey codebook.
+This repository contains files, documents and additional materials pertaining to a preliminary exploration of the Consumer Financial Protection Bureau's (CFPB) 2016 National Financial Well-Being Survey (NFWBS). Deciding that in order to make assessments and develop the best tools to promote financial literacy among U.S. consumers, the CFPB created its own financial well-being scale, and then conducted a nationally-representative survey using this scale during the Fall of 2016. The dataset created from this research is currently accessible for free for users through download from the CFPB website (located here: https://www.consumer finance.gov/data-research/financial-well-being-survey-data/). This repository contains this dataset, as well as relevant documents to interpret the various measures and variables that this dataset contains, including various user guides and the survey codebook.
 
 Primary analysis goals are to examine various measures of financial well-being as defined by the survey queries of the CFPB, and compare them to assessments of financial knowledge and/or literacy, as they may relate to household earnings.
 
@@ -18,7 +18,7 @@ email: damon.daniels@duke.edu
 
 Keywords:
 
-Consumer Financial Protection Bureau; CFPB; National Financal Well-Being Survey; Financial Well-Being; Financial Literacy; Financial Knowledge; Financial Survey; Financial Scale Score; Subjective Financial Well-Being; Consumer Protection; Consumer Research; National Survey; Data Analysis 
+Consumer Financial Protection Bureau; CFPB; National Financial Well-Being Survey; Financial Well-Being; Financial Literacy; Financial Knowledge; Financial Survey; Financial Scale Score; Subjective Financial Well-Being; Consumer Protection; Consumer Research; National Survey; Data Analysis 
 
 
 Database Information
