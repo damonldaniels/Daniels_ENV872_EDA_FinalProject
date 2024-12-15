@@ -1,0 +1,762 @@
+---
+title: "Incomes + Outcomes: Exploratory Analysis of the Consumer Financial Protection
+  Bureau National Financial Well-Being Survey"
+author: "Damon L. Daniels"
+subtitle: https://github.com/damonldaniels/Daniels_ENV872_EDA_FinalProject
+output: pdf_document
+---
+\newpage
+\tableofcontents 
+\newpage
+\listoftables 
+\newpage
+\listoffigures 
+\newpage
+
+```{r setup, include=FALSE}
+
+setwd("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject")
+getwd()
+
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+library(ggplot2)
+library(ggthemes)
+library(cowplot)
+library(agricolae)
+library(knitr)
+
+DLDtheme <- theme_classic(base_size = 8) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "none") +
+  theme(axis.text.x = element_text(vjust = 1, hjust=1))
+
+theme_set(DLDtheme)
+
+NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject/Data/Processed_Data/NFWBS_cleaned_PROCESSED.csv")
+
+```
+
+
+# Rationale and Research Questions
+
+The objective of the Consumer Financial Protection Bureau (CFPB) is to enhance financial well-being among Americans. Financial literacy education plays a critical role in this effort. Unfortunately, in attempting to evaluate the effectiveness of such efforts, it became clear that the consumer finance and consumer capability fields lacked any accepted standard definition or measure of financial well-being initiatives (CFPB 2017). CFPB decided to engage in year-long research to develop an evidence-based and consumer-driven definition of financial well-being, create a validated scale from this data -- the CFPB Financial Well-Being Scale -- and then conduct a national survey using the scale, the CFPB National Financial Well-Being Survey.
+
+The Research Question is as follows:
+
+What associations can be drawn between an (1) an individual’s or household’s federal poverty level (FPL), (2) self-reported assessments of financial well-being, and (3) measures of financial knowledge?
+
+# Dataset Information
+
+Conducted in English and Spanish between October 27, 2016 and December 5, 2016, 6,394 surveys were completed in total: 5,395 from the general population sample and 999 from an oversample of adults aged 62 and older. These samples are representative of the U.S. adult population plus the District of Columbia. This survey was fielded using the GfK Knowledge Panel, which recruited individuals using address-based sampling and dual-frame landline and cell phone random digit dialing methods.
+
+A total of 217 variables were among the complete original dataset. For this specific project, these have been reduced to 10 total variables that represent the most pertinent participant responses that will provide answers to the research question. These variables are as follows:
+
+- Public User File ID (PUF_ID);
+- Sample;
+- Federal Poverty Level (FPL);
+- Subjective Well-Being Question 1: "I am satisfied with my life" (SWB_1);
+- Subjective Well-Being Question 2: "I am optimistic about my future" (SWB_2);
+- Subjective Well-Being Question 3: "If I work hard today, I will be more successful in the future" (SWB_1);
+- Financial Well-Being Score (FWBscore)
+- Financial Skill Scale Score (FSscore);
+- Lusardi & Mitchell Financial Knowledge Scale Score (LMscore);
+- Knoll & Houts Financial Knowledge Scale Score (KHscore).
+
+Additional processing of the 10-variable dataset was conducted in order to ensure that numerical values within particular dataset cells were consistently formatted such that subsequent analysis was possible. The processed dataset was saved as the data frame *NFWBS.wrangled.processed* within the R Coding Environment, and saved as *NFWBS_cleaned_PROCESSED.csv* within the *Processed_Data* folder, which is located in the *Data* folder within *DamonLDanielsCourseProject* in the author's Github repository. Had further time for wrangling and analysis were available, the author would have like to explore further variables, such as education level and race/ethnicity.
+
+\newpage
+
+# Exploratory Analysis 
+
+Data Wrangling
+
+- Goal: wrangle data containing information about (1) income levels, (2) self-reported levels of financial literacy, (3) self-reported levels of financial knowledge, and (4) Two separate scales that gauge correctness of self-reported levels of financial knowledge.
+
+- A secondary aim was to (1) Remove extra text from all cells that also contain number values; and (2) (2) Replace all cells containing [a] "Response not written to database," and [b] "Refused" with "0".
+
+View dimensions, column names, and variable type for each column:
+
+```{r echo=FALSE}
+
+str(NFWBS.wrangled.processed)
+colnames(NFWBS.wrangled.processed)
+
+```
+
+\newpage
+
+# Exploratory Data Visualizations
+
+```{r echo=FALSE}
+
+#Summary of Well-Being Variables, by Mean
+
+NFWBS.wrangled.processed.averages.A.SWB <- NFWBS.wrangled.processed %>% 
+  group_by(fpl) %>% 
+  summarize(
+    mean_SWB_1 = mean(SWB_1),
+    sd_SWB_1 = sd(SWB_1),
+    mean_SWB_2 = mean(SWB_2),
+    sd_SWB_2 = sd(SWB_2),
+    mean_SWB_3 = mean(SWB_3),
+    sd_SWB_3 = sd(SWB_3))
+
+knitr::kable(NFWBS.wrangled.processed.averages.A.SWB, caption = "Summary Statistics, Subjective Well-Being")
+
+
+NFWBS.wrangled.processed.averages.B.FWB <- NFWBS.wrangled.processed %>% 
+  group_by(fpl) %>% 
+  summarize(
+    mean_FWB = mean(FWBscore),
+    min_FWBscore = min(FWBscore),
+    max_FWBscore = max(FWBscore),
+    sd_FWB = sd(FWBscore))
+
+knitr::kable(NFWBS.wrangled.processed.averages.B.FWB, caption = "Summary Statistics, Financial Well-Being")
+
+
+NFWBS.wrangled.processed.averages.C.FS <- NFWBS.wrangled.processed %>% 
+  group_by(fpl) %>% 
+  summarize(
+    mean_FS = mean(FSscore),
+    min_FSscore = min(FSscore),
+    max_FSscore = max(FSscore),
+    sd_FS = sd(FSscore))
+
+knitr::kable(NFWBS.wrangled.processed.averages.C.FS, caption = "Summary Statistics, Financial Skills Scale Score")
+
+
+NFWBS.wrangled.processed.averages.D.LM <- NFWBS.wrangled.processed %>% 
+  group_by(fpl) %>% 
+  summarize(
+    mean_LM = mean(LMscore),
+    min_LMscore = min(LMscore),
+    max_LMscore = max(LMscore),
+    sd_LM = sd(LMscore))
+
+knitr::kable(NFWBS.wrangled.processed.averages.D.LM, caption = "Summary Statistics, Lusardi & Mitchell Financial Knowledge Scale Score")
+
+
+NFWBS.wrangled.processed.averages.E.KH <- NFWBS.wrangled.processed %>% 
+  group_by(fpl) %>% 
+  summarize(
+    mean_KH = mean(KHscore),
+    min_KHscore = min(KHscore),
+    max_KHscore = max(KHscore),
+    sd_KH = sd(KHscore))
+
+knitr::kable(NFWBS.wrangled.processed.averages.E.KH, caption = "Summary Statistics, Knoll & Houts Financial Knowledge Scale Score")
+
+```
+
+```{r echo=FALSE}
+
+NFWBS.wrangled.processed.A.SWB1  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_1)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(title = "Subjective Well-Being") +
+  labs(subtitle = "Q1: I am satisfied with my life") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+
+
+NFWBS.wrangled.processed.A.SWB2  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_2)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(subtitle = "Q2: I am optimistic about my future") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+
+
+NFWBS.wrangled.processed.A.SWB3  <- ggplot(NFWBS.wrangled.processed, aes(x = SWB_3)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 2000)) +
+  labs(subtitle = "Q3: If I work hard today, I will be more successful in the future") +
+  ylab(expression("Number of Respondents")) +
+  xlab(expression("Likert Scale Measure (0-7)"))
+
+
+```
+
+```{r, fig.height=7, fig.width=7, echo=FALSE, fig.cap="Self-Reported Measures of Well-Being"}
+
+NFWBS.wrangled.processed.B.SWB.plotgrid <-
+  plot_grid(NFWBS.wrangled.processed.A.SWB1, NFWBS.wrangled.processed.A.SWB2, NFWBS.wrangled.processed.A.SWB3,
+  nrow = 1, align = "vh", rel_heights = c(1, 1))
+print(NFWBS.wrangled.processed.B.SWB.plotgrid)
+
+```
+
+\newpage
+
+# Analysis
+
+```{r, fig.height=7, fig.width=11, echo=FALSE, fig.cap="Self-Reported Measures of Well-Being, Means by Federal Poverty Level"}
+
+# Mean SWBs by FPL
+
+NFWBS.wrangled.processed.C.SWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  group_by(SWB_1, SWB_2, SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl1 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl1 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl1$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl2 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl2 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl2$SWB_3)))
+
+NFWBS.wrangled.processed.C.SWBmeans.fpl3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(PUF_ID:SWB_3)
+NFWBS.wrangled.processed.C.SWBmeans.fpl3 <- 
+  NFWBS.wrangled.processed.C.SWBmeans.fpl3 %>%
+  summarise(
+    mean_SWB_1 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_1)),
+    mean_SWB_2 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_2)),
+    mean_SWB_3 = mean(as.integer(NFWBS.wrangled.processed.C.SWBmeans.fpl3$SWB_3)))
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl <-
+  list(
+    NFWBS.wrangled.processed.C.SWBmeans.fpl3, NFWBS.wrangled.processed.C.SWBmeans.fpl2, NFWBS.wrangled.processed.C.SWBmeans.fpl1, NFWBS.wrangled.processed.C.SWBmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.C2.SWBmeans.by_fpl)
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.C2.SWBmeans.by_fpl), nrow=length(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) <- c("SWB_1", "SWB_2", "SWB_3")
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2$meanSWB <- c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")
+
+NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2 <- select(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2, meanSWB,SWB_1,SWB_2,SWB_3)
+
+# SWBs by FPL Plots
+
+#   SWB Q1
+NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_1, group = 1, color = meanSWB, fill = meanSWB))
+
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot +
+  theme(legend.position = "none") +
+  labs(title = "Subjective Well-Being", x = "", y = "I am satisfied with my life") +
+  labs(subtitle = "Means, Federal Poverty Level (FPL)", x = "", y = "")
+
+
+#   SWB Q2
+NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_2, group = 1, color = meanSWB, fill = meanSWB))
+
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot +
+  theme(legend.position = "none") +
+   labs(title = "", x = "", y = "I am optimistic about my future")
+
+
+#   SWB Q3
+NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot <- ggplot(NFWBS.wrangled.processed.C2.SWBmeans.by_fpl.2) +
+  geom_col(aes(
+    x=factor(
+      meanSWB, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=SWB_3, group = 1, color = meanSWB, fill = meanSWB))
+
+
+NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot <- NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot +
+  theme(legend.position = "none") +
+  labs(title = "", x = "", y = "If I work hard today, I will be more successful in the future")
+
+
+NFWBS.wrangled.processed.D2.SWB_by_FPLplot <- plot_grid(NFWBS.wrangled.processed.D.SWBbyFPL.Q1plot, NFWBS.wrangled.processed.D.SWBbyFPL.Q2plot, NFWBS.wrangled.processed.D.SWBbyFPL.Q3plot,
+  nrow = 1, align = "h", rel_heights = c(1, 1)) +
+  theme(legend.position = "none", legend.text = element_text(size = 8), legend.title = element_text(size = 8))
+print(NFWBS.wrangled.processed.D2.SWB_by_FPLplot)
+
+```
+
+```{r, fig.height=7, fig.width=7, echo=FALSE, fig.cap="Measures of Financial Well-Being, Means by Federal Poverty Level"}
+
+# Mean FWB Score by FPL
+
+NFWBS.wrangled.processed.E.FWBmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBmeans <-
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBmeans$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL1 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL1 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL1$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL2 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL2 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL2$FWBscore)))
+
+NFWBS.wrangled.processed.E.FWBbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FWBscore)
+NFWBS.wrangled.processed.E.FWBbyFPL3 <- 
+  NFWBS.wrangled.processed.E.FWBbyFPL3 %>%
+  summarise(
+    mean_FWBscore = mean(as.integer(NFWBS.wrangled.processed.E.FWBbyFPL3$FWBscore)))
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.E.FWBbyFPL3, NFWBS.wrangled.processed.E.FWBbyFPL2, NFWBS.wrangled.processed.E.FWBbyFPL1, NFWBS.wrangled.processed.E.FWBmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.E2.FWBbyFPL.list)
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.E2.FWBbyFPL.list), nrow=length(NFWBS.wrangled.processed.E2.FWBbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) <- c("mean")
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2$meanfwB <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.E2.FWBbyFPL.list2 <- select(NFWBS.wrangled.processed.E2.FWBbyFPL.list2, meanfwB:mean)
+
+colnames(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) <- c("FPL","mean")
+
+# FWB by FPL Plots
+
+NFWBS.wrangled.processed.E3.FWBbyFPL <-
+  ggplot(NFWBS.wrangled.processed.E2.FWBbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+
+
+NFWBS.wrangled.processed.E3.FWBbyFPL <- NFWBS.wrangled.processed.E3.FWBbyFPL +
+  theme(legend.position = "none") +
+  labs(title = "Financial Well-Being Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.E3.FWBbyFPL)
+
+```
+
+```{r, fig.height=7, fig.width=7, echo=FALSE, fig.cap="Measures of Financial Skills, Means by Federal Poverty Level"}
+
+# Mean FS Score by FPL
+
+NFWBS.wrangled.processed.F.FSmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSmeans <-
+  NFWBS.wrangled.processed %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSmeans$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL1 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL1 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL1$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL2 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL2 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL2$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(FSscore)
+NFWBS.wrangled.processed.F.FSbyFPL3 <- 
+  NFWBS.wrangled.processed.F.FSbyFPL3 %>%
+  summarise(
+    mean_FSscore = mean(as.integer(NFWBS.wrangled.processed.F.FSbyFPL3$FSscore)))
+
+NFWBS.wrangled.processed.F.FSbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.F.FSbyFPL3, NFWBS.wrangled.processed.F.FSbyFPL2, NFWBS.wrangled.processed.F.FSbyFPL1, NFWBS.wrangled.processed.F.FSmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.F.FSbyFPL.list)
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.F.FSbyFPL.list), nrow=length(NFWBS.wrangled.processed.F.FSbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.F.FSbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2$meanfS <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.F.FSbyFPL.list2 <- select(NFWBS.wrangled.processed.F.FSbyFPL.list2, meanfS:TK)
+
+colnames(NFWBS.wrangled.processed.F.FSbyFPL.list2) <- c("FPL","mean")
+
+# FS by FPL Plot
+
+NFWBS.wrangled.processed.F.FSbyFPL <- ggplot(NFWBS.wrangled.processed.F.FSbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+
+
+NFWBS.wrangled.processed.F.FSbyFPL <- NFWBS.wrangled.processed.F.FSbyFPL +
+  theme(legend.position = "none") +
+  labs(title = "Financial Skill Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.F.FSbyFPL)
+
+```
+
+```{r, fig.height=7, fig.width=7, echo=FALSE, fig.cap="Lusardi & Mitchell Financial Knowledge Scale Score, Means by Federal Poverty Level"}
+
+# Mean LM Score by FPL
+
+NFWBS.wrangled.processed.G.LMmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMmeans <-
+  NFWBS.wrangled.processed.G.LMmeans %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMmeans$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL1 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL1 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL1$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL2 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL2 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL2$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(LMscore)
+NFWBS.wrangled.processed.G.LMbyFPL3 <- 
+  NFWBS.wrangled.processed.G.LMbyFPL3 %>%
+  summarise(
+    mean_LMscore = mean(as.integer(NFWBS.wrangled.processed.G.LMbyFPL3$LMscore)))
+
+NFWBS.wrangled.processed.G.LMbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.G.LMbyFPL3, NFWBS.wrangled.processed.G.LMbyFPL2, NFWBS.wrangled.processed.G.LMbyFPL1, NFWBS.wrangled.processed.G.LMmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.G.LMbyFPL.list)
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.G.LMbyFPL.list), nrow=length(NFWBS.wrangled.processed.G.LMbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.G.LMbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2$meanLM <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.G.LMbyFPL.list2 <- select(NFWBS.wrangled.processed.G.LMbyFPL.list2, meanLM:TK)
+
+colnames(NFWBS.wrangled.processed.G.LMbyFPL.list2) <- c("FPL","mean")
+
+# LM by FPL Plot
+
+NFWBS.wrangled.processed.G.LMbyFPL <- ggplot(NFWBS.wrangled.processed.G.LMbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+
+
+NFWBS.wrangled.processed.G.LMbyFPL <- NFWBS.wrangled.processed.G.LMbyFPL +
+  theme(legend.position = "none") +
+  labs(title = "Lusardi & Mitchell Financial Knowledge Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.G.LMbyFPL)
+
+```
+
+```{r, fig.height=7, fig.width=7, echo=FALSE, fig.cap="Knoll & Houts Financial Knowledge Scale Score, Means by Federal Poverty Level"}
+
+# Mean KH Score by FPL
+
+NFWBS.wrangled.processed.H.KHmeans <- 
+  NFWBS.wrangled.processed %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHmeans <-
+  NFWBS.wrangled.processed.H.KHmeans %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHmeans$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL1 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "200%+ FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL1 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL1 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL1$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL2 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "100%-199% FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL2 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL2 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL2$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL3 <- 
+  NFWBS.wrangled.processed %>%
+  filter(fpl == "<100% FPL") %>%
+  select(KHscore)
+NFWBS.wrangled.processed.H.KHbyFPL3 <- 
+  NFWBS.wrangled.processed.H.KHbyFPL3 %>%
+  summarise(
+    mean_KHscore = mean(as.integer(NFWBS.wrangled.processed.H.KHbyFPL3$KHscore)))
+
+NFWBS.wrangled.processed.H.KHbyFPL.list <-
+  list(
+    NFWBS.wrangled.processed.H.KHbyFPL3, NFWBS.wrangled.processed.H.KHbyFPL2, NFWBS.wrangled.processed.H.KHbyFPL1, NFWBS.wrangled.processed.H.KHmeans)
+
+Reduce(function(x, y) merge(x, y, all=TRUE), NFWBS.wrangled.processed.H.KHbyFPL.list)
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2 <- data.frame(
+  matrix(
+    unlist(
+      NFWBS.wrangled.processed.H.KHbyFPL.list), nrow=length(NFWBS.wrangled.processed.H.KHbyFPL.list), byrow=TRUE)) 
+
+colnames(NFWBS.wrangled.processed.H.KHbyFPL.list2) <- c("TK")
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2$meanKH <- c("200%+ FPL", "100% - 199% FPL", ">100% FPL", "Overall Mean")
+
+NFWBS.wrangled.processed.H.KHbyFPL.list2 <- select(NFWBS.wrangled.processed.H.KHbyFPL.list2, meanKH:TK)
+
+colnames(NFWBS.wrangled.processed.H.KHbyFPL.list2) <- c("FPL","mean")
+
+# KH by FPL Plot
+
+NFWBS.wrangled.processed.H.KHbyFPL <- ggplot(NFWBS.wrangled.processed.H.KHbyFPL.list2) +
+  geom_col(aes(
+    x=factor(
+      FPL, level=c("Overall Mean", ">100% FPL", "100% - 199% FPL", "200%+ FPL")), y=mean, group = 1, color = FPL, fill = FPL))
+
+
+NFWBS.wrangled.processed.H.KHbyFPL <- NFWBS.wrangled.processed.H.KHbyFPL +
+  theme(legend.position = "none") +
+  labs(title = "Knoll & Houts Financial Knowledge Scale Score - Means, by Federal Poverty Level (FPL)", x = "", y = "")
+print(NFWBS.wrangled.processed.H.KHbyFPL)
+
+```
+
+
+
+## Question 1: What observations can be inferred by viewing each of the finanicial well-being, skills and knowledge measures that have been charted visually?
+
+Figure 1 displays the average numerical response level by survey participants for each of the Subjective Well-Being (SWB) Questions, as three separate graphs (1 graph per survey question). Participants were asked to report their sentiments, using a scale ranging from 1 to 7 (with "1" meaning "Strongly disagree" and "7" meaning "Strongly Agree") after hearing each of the following statements: (1) "I am satisfied with my life"; (2) "I am optimistic about my future"; (3) "If I work hard today, I will be more successful in the future."
+
+For Question 1 -- "I am satisfied with my life" -- the average self-reported SWB assessment was approximately 5.79, meaning that as a sample, participants were likely on average to report firm agreement with this statement. For Question 2 -- "I am optimistic about my future" -- the average self-reported SWB assessment was approximately 6.12, meaning that as a sample, participants were likely on average to report firmly agree with this statement. For Question 3 -- "If I work hard today, I will be more successful in the future" -- participants reported the highest level of agreement, at an average SWB level of 6.34.
+
+Comparing each respective overall average to the averages that were calculated by  disaggregating participant responses by Federal Poverty Level (FPL) status. Interestingly, for each of the three questions, individuals with earnings either at the FPL, or up to 199% above it, self-reported the highest SWB levels.
+
+Figure 3 displays both the overall and by-FPL measures of Financial Well-Being Scale Score (FWB). Recorded scores ranged from scores of 14 to 95; the full score scale ranged from 0 to 100. Approximately 86 different numerical scores were recorded. These scores were accumulated from responses to ten different questions and participant responses related to financial well-being. For Figure 2, the overall average is approximately 43.01. The average FWB for participants earning less than 100% of the FPL measured the highest, at 45.65; at 100% to 199% of the FPL, and 200% and above the FPL, FWB measures were approximately 36.23 and 32.31, respectively.
+
+Similar trends in Figure 3 can be seen in Figure 4, which displays the average Financial Skill (FS) Scale Score overall and by FPL. Measured on a similar 0 to 100 scale as the FWB, scores are generally expected to fall within a middle threshold; extremely high or extremely low number scores are uncommon. The overall average scale score was 42.30; 43.45 for surveyed individuals whose earnings were lower than the FPL; 38.81 for earners between 100% and 199% of the FPL; and 38.33 for participants earning 200% above the FPL or higher.
+
+Figure 5 displays average Lusardi and Mitchell (LM) Financial Knowledge Scale scores by overall averages as well as averages by FPL. Scores are calculated from a financial literacy questionnaire, scored on a scale ranging from 0 to 9, that assesses participants' knowledge of compound interest, risk diversification, and inflation concepts based on questions that are answered correctly or incorrectly. Once again, similar trends emerged. The overall LM score average score was 3.51, with a slight uptick in average score for individuals who earned at lower than the FPL (3.63), a decrease for people who earned between 100% and 199% of the FPL (3.26), and a further decrease for individuals who earned above 200% and higher than the FPL (2.91).
+
+Lastly, Figure 6 displays average Knoll and Houts (KH) Financial Knowledge Scale scores, which has the similar purpose and structure as Lusardi's and Mitchell's scale but add questions about interest and the time value of money. Yet again, similar trends occurred. The overall KH score average score was 6.11, with an uptick in average score for individuals who earned at lower than the FPL (6.62), a sizable decrease for people who earned between 100% and 199% of the FPL (4.80), and a further decrease for individuals who earned above 200% and higher than the FPL (4.10).
+
+\newpage
+
+# Linear Regressions
+
+Additional figures were created in attempt to assess relationships between Federal Poverty Level, Subjective and Financial Well-Being, and Financial knowledge/literacy among research participants; summaries and corresponding figures are below. From the summaries, the following can be observed:
+
+- For the Subjective Well-Being statement, "I am satisfied with my life," statistically significant and positive associations can be drawn between Likert measures and each Federal Poverty Level group.
+
+- For the Subjective Well-Being statement, "I am optimistic about my future," statistically significant and positive associations can be drawn between Likert measures and Federal Poverty Level groups of individuals who earned below that threshold, as well as individuals earning 200% or more beyond the federal standard.
+
+- For the Subjective Well-Being statement, ""If I work hard today, I will be more successful in the future," statistically significant and positive associations can be drawn between Likert measures and Federal Poverty Level groups of individuals who earned below that threshold, as well as individuals earning 200% or more beyond the federal standard.
+
+- For the Financial Well-Being Score, statistically significant and positive associations can be drawn between scores and each Federal Poverty Level group.
+
+- For the Financial Skills Scale, statistically significant and positive associations can be drawn between Likert measures and Federal Poverty Level groups of individuals who earned below that threshold, as well as individuals earning 200% or more beyond the federal standard.
+
+- For the Lusadi and Mitchell Financial Knowledge Scale, statistically significant and positive associations can be drawn between scores and each Federal Poverty Level group.
+
+- For the Knoll and Houts Financial Knowledge Scale Score, statistically significant associations can be drawn between scores and each Federal Poverty Level group. This association was found to be a negative relationships at the below-Federal Poverty Level threshold, but positive for the other income groups. For other categories where negative associations were found, none of these results were statistically significant.
+
+\newpage
+
+```{r echo=FALSE}
+
+NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCourseProject/Data/Processed_Data/NFWBS_cleaned_PROCESSED.csv")
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Subjective Well-Being: I am satisfied with my life"}
+
+A.SWB_1.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_1 ~ NFWBS.wrangled.processed$fpl)
+summary(A.SWB_1.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_1.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Subjective Well-Being: I am optimistic about my future"}
+
+A.SWB_2.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_2 ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(A.SWB_2.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_2.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Subjective Well-Being: If I work hard today, I will be more successful in the future"}
+
+A.SWB_3.regression <- 
+  lm(NFWBS.wrangled.processed$SWB_3 ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(A.SWB_3.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(A.SWB_3.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Financial Well-Being"}
+
+B.FWB.regression <-
+  lm(NFWBS.wrangled.processed$FWBscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(B.FWB.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(B.FWB.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Financial Skills Scale Score"}
+
+C.FS.regression <-
+  lm(NFWBS.wrangled.processed$FSscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(C.FS.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(C.FS.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Lusardi & Mitchell Financial Knowledge Scale"}
+
+D.LM.regression <-
+  lm(NFWBS.wrangled.processed$LMscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(D.LM.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(D.LM.regression)
+par(mfrow = c(1,1))
+
+```
+
+\newpage
+
+```{r, fig.height=11, fig.width=8, echo=TRUE, fig.cap= "Function Plots, Knoll & Houts Financial Knowledge Scale"}
+
+
+E.KH.regression <-
+  lm(NFWBS.wrangled.processed$KHscore ~ 
+       NFWBS.wrangled.processed$fpl)
+summary(E.KH.regression)
+
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(E.KH.regression)
+par(mfrow = c(1,1))
+
+```
+
+
+# Summary and Conclusions
+
+The Consumer Financial Protection Bureau's National Financial Well-Being Survey to examine relationships between self-reported measures of financial well-being to three different assessments of financial literacy, with an emphasis on potential differences that occurred for earnings below, at and above the Federal Poverty Level. Self-reported measures of financial well-being were high among survey participants. On average, respondents are satisfied with their lives, are optimistic about their futures, and believe that hard work will lead to good future financial outcomes. Participants' Financial Well-Being scores fall within average ranges, both overall and across different earnings tiers by Federal Poverty Level. Participants who earned less than the Federal Poverty Level threshold scored highest on this scale, followed by individuals earning between 100% and 199% of the Federal Poverty Level and respondents who earned twice as much as the Federal Poverty level or above, respectively. Similar rankings of performance occurred for each of the financial literacy scores that were assessed.
+
+Overall, from the data analysis at hand it appears that measurements of financial well-being and financial literacy differed little between the different income groups used by the CFPB and for this dataset. This research, however, is not exhaustive; in fact, it is preliminary. With further time to investigate this CFPB data more thoroughly, a number of statistical calculations would have been possible. For example, further visualizations could have examined if that were any statistically significant correlations between the measures studied for this experiment, including statistical analysis such as t-tests, ANOVA and the like. Further graphical disaggregations may have also been possible. For example, further analysis may have allowed the researchers for this experiment to explore differences in expressions of financial literacy that could be broken down not only by Federal Poverty Level, but also by the numerical value of participants' answers to each of the Subjective Well-Being questions. Meaning, it may be useful to assess the financial literacy of a person or group to earned less than the Federal Poverty threshold, held high financial knowledge according to the scales used for this survey, yet may have reported to subjectively feel that working hard may not bring future financial success. Or, some other combination of earnings, subjective financial outlooks and financial literacy might possibility emerge outside of the trends interpreted so far.
+
+
+\newpage
+
+# References
+<add references here if relevant, otherwise delete this section> 

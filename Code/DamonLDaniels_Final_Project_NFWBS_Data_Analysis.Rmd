@@ -115,9 +115,6 @@ par(mfrow = c(2,2), mar=c(4,4,4,4))
 plot(E.KH.regression)
 par(mfrow = c(1,1))
 
-
-
-
 ```
 
 
