@@ -42,7 +42,7 @@ NFWBS.wrangled.processed <- read.csv("/home/guest/EDA_Spring2024/DamonLDanielsCo
 
 # Rationale and Research Questions
 
-The objective of the Consumer Financial Protection Bureau (CFPB) is to enhance financial well-being among Americans. Financial literacy education plays a critical role in this effort. Unfortunately, in attempting to evaluate the effectiveness of such efforts, it became clear that the consumer finance and consumer capability fields lacked any accepted standard definition or measure of financial well-being initiatives (CFPB 2017). CFPB decided to engage in year-long research to develop an evidence-based and consumer-driven definition of financial well-being, create a validated scale from this data -- the CFPB Financial Well-Being Scale -- and then conduct a national survey using the scale, the CFPB National Financial Well-Being Survey.
+The objective of the Consumer Financial Protection Bureau (CFPB) is to enhance financial well-being among Americans. Financial literacy education plays a critical role in this effort. Unfortunately, in attempting to evaluate the effectiveness of such efforts, it became clear that the consumer finance and consumer capability fields lacked any accepted standard definition or measure of financial well-being initiatives. CFPB decided to engage in year-long research to develop an evidence-based and consumer-driven definition of financial well-being, create a validated scale from this data -- the CFPB Financial Well-Being Scale -- and then conduct a national survey using the scale, the CFPB National Financial Well-Being Survey.
 
 The Research Question is as follows:
 
